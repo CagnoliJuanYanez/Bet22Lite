@@ -944,6 +944,10 @@ public void open(boolean initializeMode){
 		Quote q = db.find(Quote.class, quote); 
 		String result = q.getForecast();
 		
+		System.out.println(new Date().toLocaleString());
+		System.out.println(q.getQuestion().getEvent().getEventDate().toLocaleString());
+		System.out.println(new Date().compareTo(q.getQuestion().getEvent().getEventDate()));
+		
 		if(new Date().compareTo(q.getQuestion().getEvent().getEventDate())<0)
 			throw new EventNotFinished();
 

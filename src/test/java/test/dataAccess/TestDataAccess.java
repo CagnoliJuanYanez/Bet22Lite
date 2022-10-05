@@ -2,15 +2,18 @@ package test.dataAccess;
 
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.Query;
 
 import configuration.ConfigXML;
 import domain.Event;
 import domain.Question;
+import domain.Quote;
 import domain.Sport;
 
 public class TestDataAccess {
@@ -127,6 +130,46 @@ public class TestDataAccess {
 			}
 			
 			return sportToAdd;
+		}
+		
+		public Quote addQuote(Quote quote) {
+			System.out.println(">> DataAccessTest: addQuote");
+			db.getTransaction().begin();
+			try {
+				db.persist(quote);
+				db.getTransaction().commit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return quote;
+		}
+		
+		public Question addQuestion(Question question) {
+			System.out.println(">> DataAccessTest: addQuestion");
+			db.getTransaction().begin();
+			try {
+				db.persist(question);
+				db.getTransaction().commit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return question;
+		}
+
+
+		public void deleteAll() {
+			db.getTransaction().begin();
+			try {
+				db.createQuery("DELETE FROM domain.Sport").executeUpdate();
+				db.createQuery("DELETE FROM domain.Quote").executeUpdate();
+				db.createQuery("DELETE FROM domain.Question").executeUpdate();
+				db.getTransaction().commit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
 		}
 }
 
