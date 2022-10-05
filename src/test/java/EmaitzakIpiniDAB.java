@@ -12,9 +12,12 @@ import org.junit.Before;
 import org.junit.Test;
 
 import dataAccess.DataAccess;
+import domain.ApustuAnitza;
+import domain.Apustua;
 import domain.Event;
 import domain.Question;
 import domain.Quote;
+import domain.Registered;
 import domain.Sport;
 import exceptions.EventNotFinished;
 import test.dataAccess.TestDataAccess;
@@ -28,51 +31,26 @@ public class EmaitzakIpiniDAB {
 	static TestDataAccess testDA = new TestDataAccess();
 
 	private SimpleDateFormat sdf;
-	private Date eventDate;
-	private String eventSport;
-	private Event eventInDb;
-	private Sport sportInDb;
 	private String eventDescription;
-	private Quote quoInDb;
-	private Question question;
 
 	@Before
 	public void initialize() {
-		sdf = new SimpleDateFormat("dd/MM/yyyy");
 		eventDescription = "Villareal-Barcelona";
-
-		testDA.open();
-		testDA.deleteAll();
-		eventDate = new Date();
-		eventDate.setYear(eventDate.getYear() - 1);
-		eventSport = "Futbol";
-		eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
-		question = new Question("query?", 2, eventInDb);
-		testDA.addQuestion(question);
-		Quote quo = new Quote(1.0, "forecast", question);
-		sportInDb = testDA.addSport(eventSport);
-		quoInDb = testDA.addQuote(quo);
-
-		testDA.close();
-
 	}
 
 	@Test
 	public void testPath1() {
 		try {
-
-			String finishedEvDescription = "Villareal-Barcelona2";
 			sdf = new SimpleDateFormat("dd/MM/yyyy");
 			testDA.open();
 			testDA.deleteAll();
-			eventDate = sdf.parse("15/4/2026");
-			eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
-			question = new Question("query", 2, eventInDb);
+			Date eventDate = sdf.parse("15/4/2026");
+			Event eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
+			Question question = new Question("query", 2, eventInDb);
 			testDA.addQuestion(question);
 			Quote quo = new Quote(1.2, "forecast2", question);
-			quoInDb = testDA.addQuote(quo);
+			Quote quoInDb = testDA.addQuote(quo);
 			testDA.close();
-
 			sut.EmaitzakIpini(quoInDb);
 		} catch (EventNotFinished e) {
 			assertTrue(true);
@@ -86,4 +64,76 @@ public class EmaitzakIpiniDAB {
 		}
 	}
 
+	@Test
+	public void testPath2() {
+		sdf = new SimpleDateFormat("dd/MM/yyyy");
+		testDA.open();
+		testDA.deleteAll();
+		Date eventDate = new Date();
+		try {
+			eventDate = sdf.parse("15/4/2020");
+		} catch (ParseException e) {
+			fail();
+		}
+		Event eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
+		Question question = new Question("query", 2, eventInDb);
+		testDA.addQuestion(question);
+		Quote quo = new Quote(1.2, "forecast2", question);
+		Quote quoInDb = testDA.addQuote(quo);
+		testDA.close();
+		try {
+			sut.EmaitzakIpini(quoInDb);
+		} catch (EventNotFinished e) {
+			fail();
+		}
+		assertTrue(question.getQuotes().isEmpty());
+		sut.close();
+		sut.open(false);
+	}
+
+	@Test
+	public void testPath3() {
+		sdf = new SimpleDateFormat("dd/MM/yyyy");
+		testDA.open();
+		testDA.deleteAll();
+		Date eventDate = new Date();
+		try {
+			eventDate = sdf.parse("15/4/2020");
+		} catch (ParseException e) {
+			fail();
+		}
+		Event eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
+		Question question = new Question("query", 2, eventInDb);
+		Quote q = question.addQuote(1.2, "forecast", question);
+		testDA.addQuestion(question);
+		testDA.close();
+		try {
+			sut.EmaitzakIpini(q);
+		} catch (EventNotFinished e) {
+			fail();
+		}
+		assertFalse(question.getQuotes().isEmpty());
+		assertTrue(question.getQuotes().elementAt(0).getApustuak().isEmpty());
+		sut.close();
+		sut.open(false);
+	}
+
+	
+	@Test
+	public void testPath4() {
+		testDA.open();
+		testDA.deleteAll();
+	
+		Event eventInDb = testDA.addFinishedEventWithQuote();		
+		
+		testDA.close();
+		try {
+			sut.EmaitzakIpini(eventInDb.getQuestions().get(0).getQuotes().get(0));
+		} catch (EventNotFinished e) {
+			fail();
+		}
+		
+		sut.close();
+		sut.open(false);
+	}
 }

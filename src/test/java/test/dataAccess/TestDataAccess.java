@@ -1,5 +1,9 @@
 package test.dataAccess;
 
+import static org.junit.Assert.fail;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -11,9 +15,12 @@ import javax.persistence.Persistence;
 import javax.persistence.Query;
 
 import configuration.ConfigXML;
+import domain.ApustuAnitza;
+import domain.Apustua;
 import domain.Event;
 import domain.Question;
 import domain.Quote;
+import domain.Registered;
 import domain.Sport;
 
 public class TestDataAccess {
@@ -181,5 +188,57 @@ public class TestDataAccess {
 			e.setEventDate(date);
 			db.merge(e);
 		}
+
+
+		public Apustua addApustua(Apustua apustua) {
+			System.out.println(">> DataAccessTest: addApustua");
+			try {			
+				db.getTransaction().begin();
+				db.persist(apustua);				
+				db.getTransaction().commit();
+
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return apustua;
+		}
+
+
+		public Event addFinishedEventWithQuote() {		
+			SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+			Date eventDate = new Date();
+			try {
+				eventDate = sdf.parse("15/4/2020");
+			} catch (ParseException e) {
+				fail();
+			}			
+			
+			Event ev=null;
+			
+			db.getTransaction().begin();
+			Registered us = new Registered( "username", "password",123123, false);
+			ApustuAnitza ap = new ApustuAnitza(us, 1.0);
+			db.persist(ap);
+			db.getTransaction().commit();
+
+			
+			db.getTransaction().begin();
+			try {
+			    ev = new Event("Evento", eventDate);
+			    Question question = ev.addQuestion("question", 1.0);
+			    Quote q = question.addQuote(1.6, "forecast", question);
+			    q.addApustua(new Apustua(ap, q));
+				db.persist(ev);
+
+				db.getTransaction().commit();
+			}
+			catch (Exception e){
+				e.printStackTrace();
+			}
+			return ev;
+		}
+		
+		
 }
 
