@@ -264,5 +264,45 @@ public class TestDataAccess {
 	public Event getEvent(Integer eventNumber) {
 		return db.find(Event.class, eventNumber);
 	}
+	
+	public boolean removeRegistered(Registered registered) {
+		System.out.println(">> DataAccessTest: removeRegistered");
+		Registered reg = db.find(Registered.class, registered);
+		if (reg!=null) {
+			db.getTransaction().begin();
+			db.remove(reg);
+			db.getTransaction().commit();
+			return true;
+		} else 
+		return false;
+	}
+
+public void deleteRegistered() {
+			db.getTransaction().begin();
+			try {
+				db.createQuery("DELETE FROM domain.Registered").executeUpdate();
+				db.getTransaction().commit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+		}
+	
+
+public Registered addRegistered(String username, String password, Integer bankAcount, double score) {
+			System.out.println(">> DataAccessTest: addRegistered");
+			Registered registeredToAdd = null;
+			db.getTransaction().begin();
+			try {
+				registeredToAdd = new Registered(username, password, bankAcount);
+				registeredToAdd.setIrabazitakoa(score);
+				db.persist(registeredToAdd);
+				db.getTransaction().commit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			
+			return registeredToAdd;
+		}
 
 }
