@@ -18,128 +18,235 @@ public class GertaerakSortuDAB {
 	
 	//sut:system under test
 	static DataAccess sut=new DataAccess();
-		 
+			 
 	//additional operations needed to execute the test 
 	static TestDataAccess testDA=new TestDataAccess();
-	
+		
 	private String eventDescription;
 	private SimpleDateFormat sdf;
 	private Date eventDate;
 	private String eventSport;
 	private Event eventInDb;
 	private Sport sportInDb;
-	
+		
 	@Before
 	public void initialize() {
-		eventDescription = "Villareal-Barcelona";
+		eventDescription = "Real Madrid-Barcelona";
 		sdf = new SimpleDateFormat("dd/MM/yyyy");
-		
+			
 		try {
-			eventDate = sdf.parse("15/4/2016");	
+			eventDate = sdf.parse("28/10/2022");	
 		} catch (ParseException pe) {
 			fail();
 		}
-		
-		eventSport = "Futbol";
+			
+	}
+	
+	//different sports will be used for each test as if not, Optimistic lock failed for object domain.Sport is thrown.
+	
+	@Test
+	public void testCase1() {
+		try {		
+			eventSport = "Futbol1";
+			
+			testDA.open();
+			sportInDb = testDA.addSport(eventSport);
+			testDA.close();
+			
+			boolean addedEvent = sut.gertaerakSortu(eventDescription, eventDate, eventSport);
+			
+			assertTrue(addedEvent);
+			
+			testDA.open();
+			boolean existsEvent = testDA.existEvent(eventDate, eventDescription);
+			testDA.close();
+			
+			assertTrue(existsEvent);
+			
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+		}
+	}
+	
+	//this is test case 8 as well (overlaps)
+	@Test
+	public void testCase1LimitValueForDateYesterday() {
+		try {
+			eventSport = "Futbol1.1";
+			
+			testDA.open();
+			sportInDb = testDA.addSport(eventSport);
+			testDA.close();
+			
+			Date yesterday = new Date(System.currentTimeMillis()-24*60*60*1000);
+			
+			boolean addedEvent = sut.gertaerakSortu(eventDescription, yesterday, eventSport);
+			
+			assertFalse(addedEvent);
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+		}
 	}
 	
 	@Test
-	public void testPath1() {
+	public void testCase2() {
 		try {
-			boolean eventAdded = sut.gertaerakSortu(eventDescription, eventDate, eventSport);
+			eventSport = "Futbol2";
 			
-			assertFalse(eventAdded);
+			testDA.open();
+			sportInDb = testDA.addSport(eventSport);
+			testDA.close();
+			
+			boolean addedEvent = sut.gertaerakSortu("Real Madrid-", eventDate, eventSport);
+			
+			assertFalse(addedEvent);
 		} catch (Exception e) {
+			System.out.println(e.getMessage());
 			fail();
 		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+			
 			//force to close transaction with DB as the method does not close it
 			//otherwise all following tests will fail.
 			sut.close();
 			sut.open(false);
-			
 		}
 	}
 	
 	@Test
-	public void testPath3() {
+	public void testCase3() {
+		try {			
+			boolean addedEvent = sut.gertaerakSortu(eventDescription, eventDate, "Badmington");
+			
+			assertFalse(addedEvent);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+			
+			//force to close transaction with DB as the method does not close it
+			//otherwise all following tests will fail.
+			sut.close();
+			sut.open(false);
+		}
+	}
+	
+	@Test
+	public void testCase4() {
 		try {
+			eventSport = "Futbol4";
+			
+			testDA.open();
+			sportInDb = testDA.addSport(eventSport);
+			testDA.close();
+			
+			boolean addedEvent = sut.gertaerakSortu(null, eventDate, eventSport);
+			
+			assertFalse(addedEvent);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+			
+			//force to close transaction with DB as the method does not close it
+			//otherwise all following tests will fail.
+			sut.close();
+			sut.open(false);
+		}
+	}
+	
+	@Test
+	public void testCase5() {
+		try {
+			eventSport = "Futbol5";
+			
+			testDA.open();
+			sportInDb = testDA.addSport(eventSport);
+			testDA.close();
+			
+			boolean addedEvent = sut.gertaerakSortu(eventDescription, null, eventSport);
+			
+			assertFalse(addedEvent);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+			
+			//force to close transaction with DB as the method does not close it
+			//otherwise all following tests will fail.
+			sut.close();
+			sut.open(false);
+		}
+	}
+	
+	@Test
+	public void testCase6() {
+		try {
+			boolean addedEvent = sut.gertaerakSortu(eventDescription, eventDate, null);
+			
+			assertFalse(addedEvent);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
+			testDA.close();
+			
+			//force to close transaction with DB as the method does not close it
+			//otherwise all following tests will fail.
+			sut.close();
+			sut.open(false);
+		}
+	}
+	
+	@Test
+	public void testCase7() {
+		try {
+			eventSport = "Futbol7";
+			
 			testDA.open();
 			sportInDb = testDA.addSport(eventSport);
 			testDA.close();
 			
 			testDA.open();
-			eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
+			eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query", 0);
 			testDA.close();
 			
-			boolean eventAdded = sut.gertaerakSortu(eventDescription, eventDate, eventSport);
+			boolean addedEvent = sut.gertaerakSortu(eventDescription, eventDate, eventSport);
 			
-			assertFalse(eventAdded);
+			assertFalse(addedEvent);
+			
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			fail();
 		} finally {
 			testDA.open();
-			testDA.removeEvent(eventInDb);
-			testDA.close();
-			
-			testDA.open();
-			testDA.removeSport(sportInDb);
+			testDA.deleteAll();
 			testDA.close();
 		}
 	}
-
-		
-	@Test
-	public void testPath4() {
-		try {
-			testDA.open();
-			sportInDb = testDA.addSport(eventSport);
-			testDA.close();
-			
-			
-			boolean eventAdded = sut.gertaerakSortu(eventDescription, eventDate, eventSport);
-			
-			assertTrue(eventAdded);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			fail();
-		} finally {
-			testDA.open();
-			testDA.removeSport(sportInDb);
-	        testDA.close();
-		}
-	}
-	
-	@Test
-	public void testPath5() {
-		try {
-			testDA.open();
-			eventInDb = testDA.addEventWithQuestion("Otro-Otro", sdf.parse("16/4/2016"), "query2", 0);
-			testDA.close();
-			
-			testDA.open();
-			sportInDb = testDA.addSport("Baloncesto");
-			testDA.close();
-			
-			
-			boolean eventAdded = sut.gertaerakSortu(eventDescription, eventDate, "Baloncesto");
-			
-			assertTrue(eventAdded);
-		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			fail();
-		} finally {
-			testDA.open();
-			testDA.removeSport(sportInDb);
-	        testDA.close();
-	        
-	        testDA.open();
-			testDA.removeEvent(eventInDb);
-	        testDA.close();
-		}
-	}
-	
-	
-	
-
+ 
 }

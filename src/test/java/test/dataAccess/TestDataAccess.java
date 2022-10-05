@@ -7,6 +7,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 
 import configuration.ConfigXML;
 import domain.Event;
@@ -56,27 +57,14 @@ public class TestDataAccess {
 
 	public boolean removeEvent(Event ev) {
 		System.out.println(">> DataAccessTest: removeEvent");
-		Event e = db.find(Event.class, ev.getEventNumber());
-		if (e!=null) {
+		if (ev!=null) {
 			db.getTransaction().begin();
-			db.remove(e);
+			db.remove(ev);
 			db.getTransaction().commit();
 			return true;
 		} else 
 		return false;
     }
-	
-	public boolean removeSport(Sport sport) {
-		System.out.println(">> DataAccessTest: removeSport");
-		Sport spo = db.find(Sport.class, sport);
-		if (spo!=null) {
-			db.getTransaction().begin();
-			db.remove(spo);
-			db.getTransaction().commit();
-			return true;
-		} else 
-		return false;
-	}
 		
 		public Event addEventWithQuestion(String desc, Date d, String question, float qty) {
 			System.out.println(">> DataAccessTest: addEvent");
@@ -114,6 +102,14 @@ public class TestDataAccess {
 			
 		}
 		
+		public boolean existEvent(Date date, String description) {
+			System.out.println(">> DataAccessTest: existEventCompositeKey");
+			TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE eventDate=?1 AND description=?2",Event.class);
+			Equery.setParameter(1, date);
+			Equery.setParameter(2, description);
+			return Equery.getResultList().size() > 0;
+		}
+		
 		public Sport addSport(String sport) {
 			System.out.println(">> DataAccessTest: addSport");
 			Sport sportToAdd = null;
@@ -127,6 +123,36 @@ public class TestDataAccess {
 			}
 			
 			return sportToAdd;
+		}
+		
+		public Event getEvent(Date date, String description) {
+			System.out.println(">> DataAccessTest: getEventCompositeKey");
+			
+			TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE eventDate=?1 AND description=?2",Event.class);
+			Equery.setParameter(1, date);
+			Equery.setParameter(2, description);
+			
+			if (Equery.getResultList().size() != 0) {
+				return Equery.getResultList().get(0);
+			} else {
+				return null;
+			}
+		}
+		
+		public void deleteAll() {
+			db.getTransaction().begin();
+			try {
+				db.createQuery("DELETE FROM domain.Sport").executeUpdate();
+				db.createQuery("DELETE FROM domain.Quote").executeUpdate();
+				db.createQuery("DELETE FROM domain.Question").executeUpdate();
+				db.createQuery("DELETE FROM domain.Registered").executeUpdate();
+				db.createQuery("DELETE FROM domain.Apustua").executeUpdate();
+				db.createQuery("DELETE FROM domain.Event").executeUpdate();
+				db.getTransaction().commit();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+
 		}
 }
 
