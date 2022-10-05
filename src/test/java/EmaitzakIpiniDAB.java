@@ -1,3 +1,4 @@
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
@@ -48,8 +49,7 @@ public class EmaitzakIpiniDAB {
 			Event eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
 			Question question = new Question("query", 2, eventInDb);
 			testDA.addQuestion(question);
-			Quote quo = new Quote(1.2, "forecast2", question);
-			Quote quoInDb = testDA.addQuote(quo);
+			Quote quoInDb = testDA.addQuote(1.2, "forecast2", question,false);
 			testDA.close();
 			sut.EmaitzakIpini(quoInDb);
 		} catch (EventNotFinished e) {
@@ -78,8 +78,7 @@ public class EmaitzakIpiniDAB {
 		Event eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
 		Question question = new Question("query", 2, eventInDb);
 		testDA.addQuestion(question);
-		Quote quo = new Quote(1.2, "forecast2", question);
-		Quote quoInDb = testDA.addQuote(quo);
+		Quote quoInDb = testDA.addQuote(1.2, "forecast2", question, false);
 		testDA.close();
 		try {
 			sut.EmaitzakIpini(quoInDb);
@@ -118,21 +117,52 @@ public class EmaitzakIpiniDAB {
 		sut.open(false);
 	}
 
-	
 	@Test
 	public void testPath4() {
 		testDA.open();
 		testDA.deleteAll();
-	
-		Event eventInDb = testDA.addFinishedEventWithQuote();		
-		
+
+		Event eventInDb = testDA.addFinishedEventWithQuote(true);
+
 		testDA.close();
 		try {
 			sut.EmaitzakIpini(eventInDb.getQuestions().get(0).getQuotes().get(0));
 		} catch (EventNotFinished e) {
 			fail();
 		}
-		
+
+		testDA.open();
+		eventInDb = testDA.getEvent(eventInDb.getEventNumber());
+		testDA.close();
+
+		Quote q = eventInDb.getQuestions().get(0).getQuotes().get(0);
+		Apustua apu = q.getApustuak().get(0);
+		assertEquals(apu.getEgoera(), "irabazita");
+		sut.close();
+		sut.open(false);
+	}
+	
+	@Test
+	public void testPath5() {
+		testDA.open();
+		testDA.deleteAll();
+
+		Event eventInDb = testDA.addFinishedEventWithQuote(false);
+
+		testDA.close();
+		try {
+			sut.EmaitzakIpini(eventInDb.getQuestions().get(0).getQuotes().get(0));
+		} catch (EventNotFinished e) {
+			fail();
+		}
+
+		testDA.open();
+		eventInDb = testDA.getEvent(eventInDb.getEventNumber());
+		testDA.close();
+
+		Quote q = eventInDb.getQuestions().get(0).getQuotes().get(0);
+		Apustua apu = q.getApustuak().get(0);
+		assertEquals("galduta", apu.getEgoera());
 		sut.close();
 		sut.open(false);
 	}
