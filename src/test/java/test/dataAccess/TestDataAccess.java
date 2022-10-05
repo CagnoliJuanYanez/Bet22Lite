@@ -171,5 +171,15 @@ public class TestDataAccess {
 			}
 			
 		}
+
+
+		public void changeEventYear(Event eventInDb, int setYear) {
+			db.getTransaction().begin();
+			Date date = eventInDb.getEventDate();
+			date.setYear(setYear);
+			Event e = db.find(Event.class, eventInDb.getEventNumber());
+			e.setEventDate(date);
+			db.merge(e);
+		}
 }
 

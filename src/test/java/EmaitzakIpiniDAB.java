@@ -4,7 +4,9 @@ import static org.junit.Assert.fail;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
+import java.util.GregorianCalendar;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -38,26 +40,39 @@ public class EmaitzakIpiniDAB {
 	public void initialize() {
 		sdf = new SimpleDateFormat("dd/MM/yyyy");
 		eventDescription = "Villareal-Barcelona";
-		
-			testDA.open();
-			testDA.deleteAll();
-			eventDate = new Date();
-			eventDate.setYear(eventDate.getYear()+1);
-			eventSport = "Futbol";
-			eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
-			question = new Question("query?", 2, eventInDb);
-			testDA.addQuestion(question);	
-			Quote quo = new Quote(1.0, "forecast", question);
-			sportInDb = testDA.addSport(eventSport);
-			quoInDb = testDA.addQuote(quo);
-		
-			testDA.close();
-		
+
+		testDA.open();
+		testDA.deleteAll();
+		eventDate = new Date();
+		eventDate.setYear(eventDate.getYear() - 1);
+		eventSport = "Futbol";
+		eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
+		question = new Question("query?", 2, eventInDb);
+		testDA.addQuestion(question);
+		Quote quo = new Quote(1.0, "forecast", question);
+		sportInDb = testDA.addSport(eventSport);
+		quoInDb = testDA.addQuote(quo);
+
+		testDA.close();
+
 	}
 
 	@Test
 	public void testPath1() {
 		try {
+
+			String finishedEvDescription = "Villareal-Barcelona2";
+			sdf = new SimpleDateFormat("dd/MM/yyyy");
+			testDA.open();
+			testDA.deleteAll();
+			eventDate = sdf.parse("15/4/2026");
+			eventInDb = testDA.addEventWithQuestion(eventDescription, eventDate, "query2", 0);
+			question = new Question("query", 2, eventInDb);
+			testDA.addQuestion(question);
+			Quote quo = new Quote(1.2, "forecast2", question);
+			quoInDb = testDA.addQuote(quo);
+			testDA.close();
+
 			sut.EmaitzakIpini(quoInDb);
 		} catch (EventNotFinished e) {
 			assertTrue(true);
