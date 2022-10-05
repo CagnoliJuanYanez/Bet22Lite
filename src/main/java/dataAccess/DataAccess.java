@@ -733,7 +733,7 @@ public void open(boolean initializeMode){
 		db.getTransaction().begin();
 		Sport spo =db.find(Sport.class, sport);
 		if(spo!=null) {
-			TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE e.getEventDate() =?1 ",Event.class);
+			TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE eventDate=?1",Event.class);
 			Equery.setParameter(1, eventDate);
 			for(Event ev: Equery.getResultList()) {
 				if(ev.getDescription().equals(description)) {
