@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.EntityManagerFactory;
 import javax.persistence.Persistence;
+import javax.persistence.TypedQuery;
 import javax.persistence.Query;
 
 import configuration.ConfigXML;
@@ -70,9 +71,10 @@ public class TestDataAccess {
 		Event e = db.find(Event.class, ev.getEventNumber());
 		if (e != null) {
 			db.getTransaction().begin();
-			db.remove(e);
+			db.remove(ev);
 			db.getTransaction().commit();
 			return true;
+
 		} else
 			return false;
 	}
@@ -194,6 +196,7 @@ public class TestDataAccess {
 			db.createQuery("DELETE FROM domain.Question").executeUpdate();
 			db.createQuery("DELETE FROM domain.Registered").executeUpdate();
 			db.createQuery("DELETE FROM domain.Apustua").executeUpdate();
+			db.createQuery("DELETE FROM domain.Event").executeUpdate();
 			db.getTransaction().commit();
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -264,5 +267,52 @@ public class TestDataAccess {
 	public Event getEvent(Integer eventNumber) {
 		return db.find(Event.class, eventNumber);
 	}
+	
+	public boolean removeRegistered(Registered registered) {
+		System.out.println(">> DataAccessTest: removeRegistered");
+		Registered reg = db.find(Registered.class, registered);
+		if (reg!=null) {
+			db.getTransaction().begin();
+			db.remove(reg);
+			db.getTransaction().commit();
+			return true;
+		} else 
+		return false;
+	}
 
+	public void deleteRegistered() {
+		db.getTransaction().begin();
+		try {
+			db.createQuery("DELETE FROM domain.Registered").executeUpdate();
+			db.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public boolean existEvent(Date date, String description) {
+		System.out.println(">> DataAccessTest: existEventCompositeKey");
+		TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE eventDate=?1 AND description=?2",Event.class);
+		Equery.setParameter(1, date);
+		Equery.setParameter(2, description);
+		return Equery.getResultList().size() > 0;
+	}
+	
+
+	public Registered addRegistered(String username, String password, Integer bankAcount, double score) {
+		System.out.println(">> DataAccessTest: addRegistered");
+		Registered registeredToAdd = null;
+		db.getTransaction().begin();
+		try {
+			registeredToAdd = new Registered(username, password, bankAcount);
+			registeredToAdd.setIrabazitakoa(score);
+			db.persist(registeredToAdd);
+			db.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return registeredToAdd;
+	}
 }
