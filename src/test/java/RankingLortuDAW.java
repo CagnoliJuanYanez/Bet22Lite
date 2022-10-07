@@ -22,6 +22,8 @@ public class RankingLortuDAW {
 
 	private Registered registeredInDb1;
 	private Registered registeredInDb2;
+	private Registered registeredInDb3;
+
 
 	@Before
 	public void initialize() {
@@ -31,8 +33,10 @@ public class RankingLortuDAW {
 	
 	@Test
 	public void testPath1() {
+		testDA.open();
+		testDA.deleteAll();
+		testDA.close();
 		try {
-			testDA.deleteRegistered();
 			List<Registered> orderedList = sut.rankingLortu();
 			assertEquals(orderedList.size(), 0);
 		} catch (Exception e) {
@@ -55,7 +59,7 @@ public class RankingLortuDAW {
 			fail();
 		} finally {
 			testDA.open();
-			testDA.deleteRegistered();
+			testDA.deleteAll();
 	        testDA.close();
 		}
 	
@@ -65,22 +69,50 @@ public class RankingLortuDAW {
 	public void testPath3() {
 		try {
 			testDA.open();
-			registeredInDb1 = testDA.addRegistered("fran", "contra123", 99999, 8.2);
-			registeredInDb2 = testDA.addRegistered("andru", "contra123", 99998, 1.4);
+			registeredInDb1 = testDA.addRegistered("fran", "contra123", 99999, 1.4);
+			registeredInDb2 = testDA.addRegistered("andru", "contra123", 99998, 8.2);
 			testDA.close();
 			
 			List<Registered> orderedList = sut.rankingLortu();
 			double firstScore = orderedList.get(0).getIrabazitakoa();
 			double SecondScore = orderedList.get(1).getIrabazitakoa();
-			assertEquals(firstScore, registeredInDb2.getIrabazitakoa().doubleValue());
-			assertEquals(orderedList.get(1), registeredInDb1);
+			assertEquals(firstScore, registeredInDb2.getIrabazitakoa().doubleValue(), 0);
+			assertEquals(SecondScore, registeredInDb1.getIrabazitakoa().doubleValue(), 0);
 
 		} catch (Exception e) {
 			System.out.println(e.getMessage());
 			fail();
 		} finally {
 			testDA.open();
-			testDA.deleteRegistered();
+			testDA.deleteAll();
+	        testDA.close();
+		}
+	
+	}
+	
+	@Test
+	public void testPath4() {
+		try {
+			testDA.open();
+			registeredInDb1 = testDA.addRegistered("andru", "contra123", 99998, 8.2);
+			registeredInDb2 = testDA.addRegistered("fran", "contra123", 99999, 1.4);
+			registeredInDb3 = testDA.addRegistered("herno", "contra123", 99997, 3.3);
+			testDA.close();
+			
+			List<Registered> orderedList = sut.rankingLortu();
+			double firstScore = orderedList.get(0).getIrabazitakoa();
+			double secondScore = orderedList.get(1).getIrabazitakoa();
+			double thirdScore = orderedList.get(2).getIrabazitakoa();
+			assertEquals(firstScore, registeredInDb1.getIrabazitakoa().doubleValue(), 0);
+			assertEquals(secondScore, registeredInDb3.getIrabazitakoa().doubleValue(), 0);
+			assertEquals(thirdScore, registeredInDb2.getIrabazitakoa().doubleValue(), 0);
+
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			fail();
+		} finally {
+			testDA.open();
+			testDA.deleteAll();
 	        testDA.close();
 		}
 	

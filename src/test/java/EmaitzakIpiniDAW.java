@@ -23,7 +23,7 @@ import domain.Sport;
 import exceptions.EventNotFinished;
 import test.dataAccess.TestDataAccess;
 
-public class EmaitzakIpiniDAB {
+public class EmaitzakIpiniDAW {
 
 	// sut:system under test
 	static DataAccess sut = new DataAccess();
@@ -162,8 +162,9 @@ public class EmaitzakIpiniDAB {
 
 		Quote q = eventInDb.getQuestions().get(0).getQuotes().get(0);
 		Apustua apu = q.getApustuak().get(0);
-		assertEquals("galduta", apu.getEgoera());
+		assertEquals("galduta", apu.getApustuAnitza().getEgoera());
 		sut.close();
 		sut.open(false);
 	}
+
 }
