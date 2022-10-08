@@ -315,4 +315,51 @@ public class TestDataAccess {
 		
 		return registeredToAdd;
 	}
+	
+	public Event addEvent() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Date eventDate = new Date();
+		try {
+			eventDate = sdf.parse("15/4/2020");
+		} catch (ParseException e) {
+			fail();
+		}
+
+		Event ev = null;
+		db.getTransaction().begin();
+		try {
+			ev = new Event("Evento", eventDate);
+			db.persist(ev);
+			db.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ev;
+	}
+	
+	public Event addEventWithoutBets() {
+		SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy");
+		Date eventDate = new Date();
+		try {
+			eventDate = sdf.parse("15/4/2020");
+		} catch (ParseException e) {
+			fail();
+		}
+
+		Event ev = null;
+
+		db.getTransaction().begin();
+		try {
+			ev = new Event("Evento", eventDate);
+			Question question = ev.addQuestion("question", 1.0);
+			Quote q = question.addQuote(1.6, "forecast", question);
+			db.persist(ev);
+			db.getTransaction().commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return ev;
+	}
+
+
 }
