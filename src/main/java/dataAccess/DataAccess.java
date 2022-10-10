@@ -729,31 +729,40 @@ public void open(boolean initializeMode){
 	}
 	
 	public boolean gertaerakSortu(String description,Date eventDate, String sport) {
-		boolean b = true;
+		boolean eventExists = true;
 		db.getTransaction().begin();
 		Sport spo =db.find(Sport.class, sport);
 		if(spo!=null) {
-			TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE eventDate=?1",Event.class);
-			Equery.setParameter(1, eventDate);
-			for(Event ev: Equery.getResultList()) {
-				if(ev.getDescription().equals(description)) {
-					b = false;
-				}
-			}
-			if(b) {
-				String[] taldeak = description.split("-");
-				Team lokala = new Team(taldeak[0]);
-				Team kanpokoa = new Team(taldeak[1]);
-				Event e = new Event(description, eventDate, lokala, kanpokoa);
-				e.setSport(spo);
-				spo.addEvent(e);
-				db.persist(e);
+			eventExists = eventExists(description, eventDate);
+			if(!eventExists) {
+				addEvent(description, eventDate, spo);
 			}
 		}else {
 			return false;
 		}
 		db.getTransaction().commit();
-		return b;
+		return !eventExists;
+	}
+	
+	public boolean eventExists(String description, Date eventDate) {
+	TypedQuery<Event> Equery = db.createQuery("SELECT e FROM Event e WHERE eventDate=?1",Event.class);
+	Equery.setParameter(1, eventDate);
+	for(Event ev: Equery.getResultList()) {
+		if(ev.getDescription().equals(description)) {
+			return true;
+		}
+	}
+	return false;
+	}
+	
+	public void addEvent(String description, Date eventDate, Sport spo) {
+		String[] taldeak = description.split("-");
+		Team lokala = new Team(taldeak[0]);
+		Team kanpokoa = new Team(taldeak[1]);
+		Event e = new Event(description, eventDate, lokala, kanpokoa);
+		e.setSport(spo);
+		spo.addEvent(e);
+		db.persist(e);
 	}
 	
 	public Quote storeQuote(String forecast, Double Quote, Question question) throws QuoteAlreadyExist {
