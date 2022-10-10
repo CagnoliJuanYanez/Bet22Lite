@@ -42,6 +42,9 @@ import exceptions.QuoteAlreadyExist;
 public class DataAccess  {
 	protected static EntityManager  db;
 	protected static EntityManagerFactory emf;
+	private static String ApustuaEgin = "ApustuaEgin";
+	private static String DiruaSartu = "DiruaSartu";
+	private static String matchWinnerQuestion = "Who will win the match?";
 
 
 	ConfigXML c=ConfigXML.getInstance();
@@ -231,11 +234,11 @@ public class DataAccess  {
 				
 			}
 			else if (Locale.getDefault().equals(new Locale("en"))) {
-				q1=ev1.addQuestion("Who will win the match?",1);
+				q1=ev1.addQuestion(matchWinnerQuestion,1);
 				q2=ev1.addQuestion("Who will score first?",2);
-				q3=ev11.addQuestion("Who will win the match?",1);
+				q3=ev11.addQuestion(matchWinnerQuestion,1);
 				q4=ev11.addQuestion("How many goals will be scored in the match?",2);
-				q5=ev17.addQuestion("Who will win the match?",1);
+				q5=ev17.addQuestion(matchWinnerQuestion, 1);
 				q6=ev17.addQuestion("Will there be goals in the first half?",2);
 				
 			}			
@@ -368,17 +371,17 @@ public class DataAccess  {
 			
 			
 			
-			Transaction t1 = new Transaction(reg1, apA1.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t3 = new Transaction(reg2, apA4.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t4 = new Transaction(reg3, apA5.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t5 = new Transaction(reg4, apA3.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t6 = new Transaction(reg4, apA6.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t7 = new Transaction(reg1, apA7.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t8 = new Transaction(reg1, apA8.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t9 = new Transaction(reg2, apA9.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t10 = new Transaction(reg2, apA10.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t11 = new Transaction(reg3, apA11.getBalioa(), new Date(), "ApustuaEgin");
-			Transaction t12 = new Transaction(reg3, apA12.getBalioa(), new Date(), "ApustuaEgin");
+			Transaction t1 = new Transaction(reg1, apA1.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t3 = new Transaction(reg2, apA4.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t4 = new Transaction(reg3, apA5.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t5 = new Transaction(reg4, apA3.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t6 = new Transaction(reg4, apA6.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t7 = new Transaction(reg1, apA7.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t8 = new Transaction(reg1, apA8.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t9 = new Transaction(reg2, apA9.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t10 = new Transaction(reg2, apA10.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t11 = new Transaction(reg3, apA11.getBalioa(), new Date(), ApustuaEgin);
+			Transaction t12 = new Transaction(reg3, apA12.getBalioa(), new Date(), ApustuaEgin);
 			
 			reg1.addTransaction(t1);
 			reg2.addTransaction(t3);
@@ -594,10 +597,10 @@ public class DataAccess  {
 			
 			db.getTransaction().commit();
 			
-			this.DiruaSartu(reg1, 50.0, new Date(), "DiruaSartu");
-			this.DiruaSartu(reg2, 50.0, new Date(), "DiruaSartu");
-			this.DiruaSartu(reg3, 50.0, new Date(), "DiruaSartu");
-			this.DiruaSartu(reg4, 50.0, new Date(), "DiruaSartu");
+			this.DiruaSartu(reg1, 50.0, new Date(), DiruaSartu);
+			this.DiruaSartu(reg2, 50.0, new Date(), DiruaSartu);
+			this.DiruaSartu(reg3, 50.0, new Date(), DiruaSartu);
+			this.DiruaSartu(reg4, 50.0, new Date(), DiruaSartu);
 			
 			System.out.println("Db initialized");
 		}
@@ -855,7 +858,7 @@ public void open(boolean initializeMode){
 			}
 			apustuAnitza.setApustuKopia(apustuBikoitzaGalarazi);
 			user.updateDiruKontua(-balioa);
-			Transaction t = new Transaction(user, balioa, new Date(), "ApustuaEgin"); 
+			Transaction t = new Transaction(user, balioa, new Date(), ApustuaEgin); 
 			user.addApustuAnitza(apustuAnitza);
 			for(Apustua a: apustuAnitza.getApustuak()) {
 				Apustua apu = db.find(Apustua.class, a.getApostuaNumber());
