@@ -939,15 +939,8 @@ public void open(boolean initializeMode){
 		db.getTransaction().commit();
 	}
 	
-	public void EmaitzakIpini(Quote quote) throws EventNotFinished{
-		
-		Quote q = db.find(Quote.class, quote); 
-		String result = q.getForecast();
-		
-		if(new Date().compareTo(q.getQuestion().getEvent().getEventDate())<0)
-			throw new EventNotFinished();
-
-		Vector<Apustua> listApustuak = q.getApustuak();
+	
+	private void setQuestionResult(Quote q, String result) {
 		db.getTransaction().begin();
 		Question que = q.getQuestion(); 
 		Question question = db.find(Question.class, que); 
@@ -965,6 +958,19 @@ public void open(boolean initializeMode){
 			}
 		}
 		db.getTransaction().commit();
+	}
+	
+	public void EmaitzakIpini(Quote quote) throws EventNotFinished{
+		
+		Quote q = db.find(Quote.class, quote); 
+		String result = q.getForecast();
+		
+		if(new Date().compareTo(q.getQuestion().getEvent().getEventDate())<0)
+			throw new EventNotFinished();
+
+		Vector<Apustua> listApustuak = q.getApustuak();
+		this.setQuestionResult(q, result);
+
 		for(Apustua a : listApustuak) {
 			db.getTransaction().begin();
 			Boolean bool=a.getApustuAnitza().irabazitaMarkatu();
@@ -974,7 +980,8 @@ public void open(boolean initializeMode){
 			}
 		}
 	}
-	
+
+
 	public boolean gertaeraEzabatu(Event ev) {
 		Event event  = db.find(Event.class, ev); 
 		boolean resultB = true; 
