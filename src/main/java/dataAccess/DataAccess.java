@@ -32,6 +32,7 @@ import domain.Registered;
 import domain.Sport;
 import domain.Team;
 import domain.Transaction;
+import domain.params.ApustuaEginParams;
 import exceptions.EventNotFinished;
 import exceptions.QuestionAlreadyExist;
 import exceptions.QuoteAlreadyExist;
@@ -837,7 +838,20 @@ public void open(boolean initializeMode){
 		db.getTransaction().commit();
 	}
 	
+	/**
+	 * @deprecated Use {@link #ApustuaEgin(ApustuaEginParams)} instead
+	 */
 	public boolean ApustuaEgin(Registered u, Vector<Quote> quote, Double balioa, Integer apustuBikoitzaGalarazi) {
+		return ApustuaEgin(new ApustuaEginParams(u, quote, balioa, apustuBikoitzaGalarazi));
+	}
+
+
+	public boolean ApustuaEgin(ApustuaEginParams params) {
+		Registered u = params.u;
+		Vector<Quote> quote = params.quote;
+		Double balioa= params.balioa;
+		Integer apustuBikoitzaGalarazi = params.apustuBikoitzaGalarazi;
+		
 		Registered user = (Registered) db.find(Registered.class, u.getUsername());
 		Boolean b;
 		if(user.getDirukop()>=balioa) {
@@ -880,9 +894,9 @@ public void open(boolean initializeMode){
 				}
 				if(b) {
 					if(erab.getNork().getDiruLimitea()<balioa) {
-						this.ApustuaEgin(erab.getNork(), quote, erab.getNork().getDiruLimitea(), apustuBikoitzaGalarazi);
+						this.ApustuaEgin(params);
 					}else{
-						this.ApustuaEgin(erab.getNork(), quote, balioa, apustuBikoitzaGalarazi);
+						this.ApustuaEgin(params);
 					}
 				}
 			}
@@ -993,43 +1007,44 @@ public void open(boolean initializeMode){
 		}
 	}
 
-
-	public boolean gertaeraEzabatu(Event ev) {
-		Event event  = db.find(Event.class, ev); 
-		boolean resultB = true; 
-		List<Question> listQ = event.getQuestions(); 
-		
-		for(Question q : listQ) {
+	private boolean checkQuestionsResults(List<Question> questions) {
+		for(Question q : questions) {
 			if(q.getResult() == null) {
-				resultB = false; 
+				return false; 
 			}
 		}
-		if(resultB == false) {
-			return false;
-		}else if(new Date().compareTo(event.getEventDate())<0) {
+		return true;
+	}
+	
+	private void removeBetsFromQuote(Quote quo) {
+		for(int i=0; i<quo.getApustuak().size(); i++) {
+			ApustuAnitza ap1 = db.find(ApustuAnitza.class, quo.getApustuak().get(i).getApustuAnitza().getApustuAnitzaNumber());
+			db.getTransaction().begin();
+			ap1.removeApustua(quo.getApustuak().get(i));
+			db.getTransaction().commit();
+			if(ap1.getApustuak().isEmpty() && !ap1.getEgoera().equals("galduta")) {
+				this.apustuaEzabatu(ap1.getUser(), ap1);
+			}else if(!ap1.getApustuak().isEmpty() && ap1.irabazitaMarkatu()){
+				this.ApustuaIrabazi(ap1);
+			}
+			db.getTransaction().begin();
+			Sport spo =quo.getQuestion().getEvent().getSport();
+			spo.setApustuKantitatea(spo.getApustuKantitatea()-1);
+			db.getTransaction().commit();
+		}
+	}
+	
+	public boolean gertaeraEzabatu(Event ev) {
+		Event event  = db.find(Event.class, ev); 		
+		if(this.checkQuestionsResults(event.getQuestions())) return false;
+		if(new Date().compareTo(event.getEventDate())<0) {
 			TypedQuery<Quote> Qquery = db.createQuery("SELECT q FROM Quote q WHERE q.getQuestion().getEvent().getEventNumber() =?1", Quote.class);
 			Qquery.setParameter(1, event.getEventNumber()); 
 			List<Quote> listQUO = Qquery.getResultList();
 			for(int j=0; j<listQUO.size(); j++) {
 				Quote quo = db.find(Quote.class, listQUO.get(j));
-				for(int i=0; i<quo.getApustuak().size(); i++) {
-					ApustuAnitza apustuAnitza = quo.getApustuak().get(i).getApustuAnitza();
-					ApustuAnitza ap1 = db.find(ApustuAnitza.class, apustuAnitza.getApustuAnitzaNumber());
-					db.getTransaction().begin();
-					ap1.removeApustua(quo.getApustuak().get(i));
-					db.getTransaction().commit();
-					if(ap1.getApustuak().isEmpty() && !ap1.getEgoera().equals("galduta")) {
-						this.apustuaEzabatu(ap1.getUser(), ap1);
-					}else if(!ap1.getApustuak().isEmpty() && ap1.irabazitaMarkatu()){
-						this.ApustuaIrabazi(ap1);
-					}
-					db.getTransaction().begin();
-					Sport spo =quo.getQuestion().getEvent().getSport();
-					spo.setApustuKantitatea(spo.getApustuKantitatea()-1);
-					db.getTransaction().commit();
-				}
+				this.removeBetsFromQuote(quo);
 			}
-			
 		}
 		db.getTransaction().begin();
 		db.remove(event);

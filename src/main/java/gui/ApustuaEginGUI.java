@@ -225,7 +225,7 @@ public class ApustuaEginGUI extends JFrame{
 					zenb = Double.parseDouble(textua);
 					if(zenb>0.0) {
 						if(zenb>=maxMinBet) {
-							Boolean b = businessLogic.ApustuaEgin(user, quoteVec, zenb, -1);
+							Boolean b = businessLogic.ApustuaEgin(null);
 							quoteList= new DefaultListModel<Quote>();
 							quoteVec= new Vector<Quote>();
 							list.setModel(quoteList);

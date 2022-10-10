@@ -197,7 +197,7 @@ public class BLFacadeImplementation  implements BLFacade {
     @WebMethod	
     public boolean ApustuaEgin(Registered u, Vector<Quote> q, Double balioa, Integer apustuaGalarazi) {
     	dbManager.open(false);
-    	boolean b = dbManager.ApustuaEgin(u, q, balioa, apustuaGalarazi);
+    	boolean b = dbManager.ApustuaEgin(null);
     	dbManager.close();
     	return b; 
     }
