@@ -33,6 +33,7 @@ import domain.Sport;
 import domain.Team;
 import domain.Transaction;
 import domain.params.ApustuaEginParams;
+import domain.params.DiruaSartuParams;
 import exceptions.EventNotFinished;
 import exceptions.QuestionAlreadyExist;
 import exceptions.QuoteAlreadyExist;
@@ -598,10 +599,10 @@ public class DataAccess  {
 			
 			db.getTransaction().commit();
 			
-			this.DiruaSartu(reg1, 50.0, new Date(), DiruaSartu);
-			this.DiruaSartu(reg2, 50.0, new Date(), DiruaSartu);
-			this.DiruaSartu(reg3, 50.0, new Date(), DiruaSartu);
-			this.DiruaSartu(reg4, 50.0, new Date(), DiruaSartu);
+			this.DiruaSartu(null);
+			this.DiruaSartu(null);
+			this.DiruaSartu(null);
+			this.DiruaSartu(null);
 			
 			System.out.println("Db initialized");
 		}
@@ -827,13 +828,20 @@ public void open(boolean initializeMode){
 		return Qquery.getResultList();
 	}
 	
-	public void DiruaSartu(Registered u, Double dirua, Date data, String mota) {
-		Registered user = (Registered) db.find(Registered.class, u.getUsername()); 
+	/**
+	 * @deprecated Use {@link #DiruaSartu(DiruaSartuParams)} instead
+	 */
+	//public void DiruaSartu(Registered u, Double dirua, Date data, String mota) {
+		//DiruaSartu(new DiruaSartuParams(u, dirua, data, mota));
+	//}
+
+	public void DiruaSartu(DiruaSartuParams params) {
+		Registered user = (Registered) db.find(Registered.class, params.u.getUsername()); 
 		db.getTransaction().begin();
-		Transaction t = new Transaction(user, dirua, data, mota); 
+		Transaction t = new Transaction(user, params.dirua, params.data, params.mota); 
 		System.out.println(t.getMota());
 		user.addTransaction(t);
-		user.updateDiruKontua(dirua);
+		user.updateDiruKontua(params.dirua );
 		db.persist(t);
 		db.getTransaction().commit();
 	}
