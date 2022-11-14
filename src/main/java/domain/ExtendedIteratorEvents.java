@@ -21,13 +21,13 @@ public class ExtendedIteratorEvents implements ExtendedIterator<Event> {
 	}
 
 	public Event previous() {
-		Event event = events.get(position - 1);
+		Event event = events.get(position);
 		position = position - 1;
 		return event;
 	}
 
 	public boolean hasPrevious() {
-		return position > 0;
+		return position >= 0;
 	}
 
 	public void goFirst() {
