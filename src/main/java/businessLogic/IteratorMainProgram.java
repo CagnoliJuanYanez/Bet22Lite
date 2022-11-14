@@ -18,11 +18,11 @@ public class IteratorMainProgram {
 		
 		Date date;
 		try {
-			date = sdf.parse("17/12/2022"); 
-			blFacade.gertaerakSortu("aDescription1-aDescription1", sdf.parse("17/12/2022"), "Futbol");
-			blFacade.gertaerakSortu("aDescription2-aDescription2", sdf.parse("17/12/2022"), "Futbol");
-			blFacade.gertaerakSortu("aDescription3-aDescription3", sdf.parse("17/12/2022"), "Futbol");
-			blFacade.gertaerakSortu("aDescription4-aDescription4", sdf.parse("17/12/2022"), "Futbol");
+			date = sdf.parse("18/12/2022"); 
+			blFacade.gertaerakSortu("aDescription1-aDescription1", date, "Futbol");
+			blFacade.gertaerakSortu("aDescription2-aDescription2", date, "Futbol");
+			blFacade.gertaerakSortu("aDescription3-aDescription3", date, "Futbol");
+			blFacade.gertaerakSortu("aDescription4-aDescription4", date, "Futbol");
 			
 			ExtendedIterator<Event> eventIterator = blFacade.getEventsIterator(date); 
 			

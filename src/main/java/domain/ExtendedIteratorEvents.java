@@ -27,7 +27,7 @@ public class ExtendedIteratorEvents implements ExtendedIterator<Event> {
 	}
 
 	public boolean hasPrevious() {
-		return position > 0;
+		return position >= 0;
 	}
 
 	public void goFirst() {
