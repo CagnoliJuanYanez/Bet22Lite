@@ -52,6 +52,8 @@ public class RegisteredGUI extends JFrame {
 	private JFrame thisw;
 	private JButton btnNewButton;
 	private JButton btnRank;
+	private JButton btnWindowTable;
+
 	private JButton btnDestacados;
 	
 	/**
@@ -110,6 +112,7 @@ public class RegisteredGUI extends JFrame {
 			jContentPane.add(getJButtonMugimenduakBistaratu());
 			jContentPane.add(getJButtonDesLogin());
 			jContentPane.add(getBtnRank());
+			jContentPane.add(getBtnWindowTable());
 			jContentPane.add(getBtnDestacados());
 		}
 		return jContentPane;
@@ -259,6 +262,25 @@ public class RegisteredGUI extends JFrame {
 		}
 		return btnRank;
 	}
+	
+	private JButton getBtnWindowTable() {
+		if (btnWindowTable == null) {
+			btnWindowTable = new JButton(ResourceBundle.getBundle("Etiquetas").getString("VerApuestas")); //$NON-NLS-1$ //$NON-NLS-2$
+			btnWindowTable.setFont(new Font("Tahoma", Font.PLAIN, 16));
+			btnWindowTable.setBackground(Color.PINK);
+			btnWindowTable.setForeground(Color.DARK_GRAY);
+			btnWindowTable.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JFrame a = new JarraituGUI(user);
+					a.setVisible(true);
+				}
+			});
+			btnWindowTable.setBounds(10, 391, 282, 68);
+
+		}
+		return btnWindowTable;
+	}
+	
 	private JButton getBtnDestacados() {
 		if (btnDestacados == null) {
 			btnDestacados = new JButton(ResourceBundle.getBundle("Etiquetas").getString("Destacados")); //$NON-NLS-1$ //$NON-NLS-2$
